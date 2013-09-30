@@ -48,6 +48,14 @@ public class leinTest {
     }
 
     @Test
+    public void downloadsUberjarForGivenVersion() throws Exception {
+        l = new lein(sys,"1.0");
+        l.build();
+
+        verify(sys).download(argThat(aPathMatching(".*1.0.*jar")), anyString());
+    }
+
+    @Test
     public void downloadsLeinBatOnWindows() throws Exception {
         when(sys.isWindows()).thenReturn(true);
 
