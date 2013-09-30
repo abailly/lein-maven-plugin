@@ -68,7 +68,7 @@ public class lein {
         return scriptPath;
     }
 
-    private class leinException extends RuntimeException {
+    class leinException extends RuntimeException {
         public leinException(Throwable throwable) {
             super(throwable);
         }

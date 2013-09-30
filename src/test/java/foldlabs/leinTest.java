@@ -1,7 +1,9 @@
 package foldlabs;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -20,6 +22,9 @@ public class leinTest {
 
     public static final String LEIN_UBER_JAR_WITH_DEFAULT_VERSION = ".*" + lein.DEFAULT_VERSION + ".*jar";
 
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+    
     private Sys sys;
     private lein l;
 
@@ -74,4 +79,11 @@ public class leinTest {
         verify(sys).run(argThat(aPathMatching(".*lein")), eq("run"), anyString(), argThat(aMapWith("PORT", is("3000"))));
     }
 
+    @Test
+    public void rethrowsIOExceptionWrappedInLeinException() throws Exception {
+        expectedException.expect(lein.leinException.class);
+        when(sys.download(any(Path.class),anyString())).thenThrow(new IOException("error"));
+        
+        l.build();
+    }
 }
