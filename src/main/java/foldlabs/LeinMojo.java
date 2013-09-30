@@ -25,12 +25,41 @@ import java.util.Map;
 @Mojo(name = "lein", defaultPhase = LifecyclePhase.COMPILE, threadSafe = false)
 public class LeinMojo extends AbstractMojo {
 
-    @Parameter(property = "lein.targets")
+    /**
+     * Sets leiningen's tasks to execute. 
+     * <p>
+     *     Each task will be executed in sequence. Default task is {@code compile}. For example:
+     * </p>
+     * <pre>
+     *    &lt;targets&gt;
+            &lt;target&gt;deps&lt;/target&gt;
+            &lt;target&gt;run&lt;/target&gt;
+          &lt;/targets&gt;
+     * </pre>
+     * <p>
+     *     This instructs plugin to run <tt>deps</tt> task followed by <tt>run</tt> task. 
+     * </p>
+     * <p>
+     *     <b>CAVEAT:</b> Note each task is run in a sub-process of the current maven process. If the current process is
+     *     killed while sub-processes are still alive, this will create orphan processes that must be killed manually.
+     * </p>
+     */
+    @Parameter(property = "lein.targets", defaultValue="compile",required = true)
     private String[] targets = new String[]{"compile"};
 
+    /**
+     * Defines which leiningen's version to use.
+     */
     @Parameter(property = "lein.version", defaultValue = "2.3.2", required = true)
     private String leinVersion = "2.3.2";
 
+    /**
+     * Sets environment variables to pass to underlying processes.
+     * <p>
+     *     Each leiningen execution will be run in an environment with all this configured variables set. Of course 
+     *     the variables content may use maven properties.
+     * </p>
+     */
     @Parameter
     private Map<String,String> environment = new HashMap<>();
     
