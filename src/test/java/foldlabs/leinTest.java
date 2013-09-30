@@ -24,7 +24,7 @@ public class leinTest {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-    
+
     private Sys sys;
     private lein l;
 
@@ -49,7 +49,7 @@ public class leinTest {
 
     @Test
     public void downloadsUberjarForGivenVersion() throws Exception {
-        l = new lein(sys,"1.0");
+        l = new lein(sys, "1.0");
         l.build();
 
         verify(sys).download(argThat(aPathMatching(".*1.0.*jar")), anyString());
@@ -77,7 +77,8 @@ public class leinTest {
     public void runScriptWithDepsTargetAndEnvironmentWithLEIN_JARSet() throws Exception {
         l.build();
 
-        verify(sys).run(argThat(aPathMatching(".*lein")), eq("deps"), anyString(), argThat(aMapWith("LEIN_JAR", aStringMatching(LEIN_UBER_JAR_WITH_DEFAULT_VERSION))));
+        verify(sys).run(argThat(aPathMatching(".*lein")), eq("deps"), anyString(),
+                argThat(aMapWith("LEIN_JAR", aStringMatching(LEIN_UBER_JAR_WITH_DEFAULT_VERSION))));
     }
 
     @Test
@@ -90,8 +91,8 @@ public class leinTest {
     @Test
     public void rethrowsIOExceptionWrappedInLeinException() throws Exception {
         expectedException.expect(lein.leinException.class);
-        when(sys.download(any(Path.class),anyString())).thenThrow(new IOException("error"));
-        
+        when(sys.download(any(Path.class), anyString())).thenThrow(new IOException("error"));
+
         l.build();
     }
 }

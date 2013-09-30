@@ -39,7 +39,7 @@ public class Sys {
     }
 
     Path download(Path path, String uri) throws IOException {
-       log.log("downloading " + uri + " to " + path);
+        log.log("downloading " + uri + " to " + path);
         if (!path.toFile().exists()) {
             InputStream lein = ClientBuilder.newClient().target(uri).request().get(InputStream.class);
             Files.copy(lein, path, StandardCopyOption.REPLACE_EXISTING);
