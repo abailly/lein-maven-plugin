@@ -1,8 +1,5 @@
 package foldlabs;
 
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -10,14 +7,18 @@ import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Map;
 
+import static foldlabs.LeinMatchers.*;
+import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.*;
 
 public class leinTest {
+
+    public static final String LEIN_UBER_JAR_WITH_DEFAULT_VERSION = ".*" + lein.DEFAULT_VERSION + ".*jar";
 
     private Sys sys;
     private lein l;
@@ -38,7 +39,7 @@ public class leinTest {
     public void downloadsUberjarForDefaultVersion() throws Exception {
         l.build();
 
-        verify(sys).download(argThat(aPathMatching(".*" + lein.DEFAULT_VERSION + ".*jar")), anyString());
+        verify(sys).download(argThat(aPathMatching(LEIN_UBER_JAR_WITH_DEFAULT_VERSION)), anyString());
     }
 
     @Test
@@ -63,52 +64,14 @@ public class leinTest {
     public void runScriptWithDepsTargetAndEnvironmentWithLEIN_JARSet() throws Exception {
         l.build();
 
-        verify(sys).run(argThat(aPathMatching(".*lein")), eq("deps"), anyString(), argThat(aMapWith("LEIN_JAR", aStringMatching(".*" + lein.DEFAULT_VERSION + ".*jar"))));
+        verify(sys).run(argThat(aPathMatching(".*lein")), eq("deps"), anyString(), argThat(aMapWith("LEIN_JAR", aStringMatching(LEIN_UBER_JAR_WITH_DEFAULT_VERSION))));
     }
 
-    private Matcher<String> aStringMatching(final String regex) {
-        return new TypeSafeMatcher<String>() {
-            @Override
-            protected boolean matchesSafely(String s) {
-                return s.matches(regex);
-            }
+    @Test
+    public void runScriptWithRunTargetAndEnvironmentWithPortSetToDefault() throws Exception {
+        l.build();
 
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("a string matching " + regex);
-            }
-        };
+        verify(sys).run(argThat(aPathMatching(".*lein")), eq("run"), anyString(), argThat(aMapWith("PORT", is("3000"))));
     }
 
-    private Matcher<Map<String, String>> aMapWith(final String key, final Matcher<String> valueMatcher) {
-        return new TypeSafeMatcher<Map<String, String>>() {
-            @Override
-            protected boolean matchesSafely(Map<String, String> stringStringMap) {
-                for (Map.Entry<String, String> entry : stringStringMap.entrySet()) {
-                    if(entry.getKey().equals(key) && valueMatcher.matches(entry.getValue()))
-                        return true;
-                }
-                return false;
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("a map containing pair (" + key + ", " + valueMatcher);
-            }
-        };
-    }
-
-    private Matcher<Path> aPathMatching(final String regex) {
-        return new TypeSafeMatcher<Path>() {
-            @Override
-            protected boolean matchesSafely(Path path) {
-                return path.toString().matches(regex);
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("a path matching " + regex);
-            }
-        };
-    }
 }
