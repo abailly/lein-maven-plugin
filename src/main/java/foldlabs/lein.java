@@ -17,6 +17,8 @@ public class lein {
 
     private final String version;
     private final Sys sys;
+    private Path leinScript;
+    private Path leinjar;
 
     public lein() {
         this(new Sys(new Log.SystemLog()));
@@ -66,6 +68,27 @@ public class lein {
         sys.makeExecutable(scriptPath);
 
         return scriptPath;
+    }
+
+    public void init() {
+        try {
+            leinScript = getScript();
+            leinjar = getUberjar();
+        } catch (IOException e) {
+            throw new leinException(e);
+        }
+    }
+
+    public void run(String target) {
+        Map<String, String> environment = new HashMap<String, String>();
+        environment.put("LEIN_JAR", leinjar.toAbsolutePath().toString());
+        environment.put("PORT", port);
+
+        try {
+            sys.run(leinScript, target, "lein " + target + "...", environment);
+        } catch (Exception e) {
+            throw new leinException(e);
+        }
     }
 
     class leinException extends RuntimeException {

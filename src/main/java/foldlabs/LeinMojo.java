@@ -22,11 +22,11 @@ import org.apache.maven.plugins.annotations.Parameter;
 @Mojo(name = "lein", defaultPhase = LifecyclePhase.COMPILE, threadSafe = false)
 public class LeinMojo extends AbstractMojo {
 
-    @Parameter(property = "lein.dos")
-    private String[] dos;
+    @Parameter(property = "lein.targets")
+    private String[] targets = new String[0];
 
     @Parameter(property = "lein.version", defaultValue = "2.3.2", required = true)
-    private String leinVersion;
+    private String leinVersion = "2.3.2";
 
     private Sys sys;
 
@@ -48,10 +48,19 @@ public class LeinMojo extends AbstractMojo {
         
         lein lein = new lein(sys, leinVersion);
 
-        lein.build();
+        lein.init();
+
+        for (String target : targets) {
+            lein.run(target);
+        }
+
     }
 
     public void setLeinVersion(String leinVersion) {
         this.leinVersion = leinVersion;
+    }
+
+    public void setTargets(String[] targets) {
+        this.targets = targets;
     }
 }
