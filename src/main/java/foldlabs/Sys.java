@@ -1,5 +1,7 @@
 package foldlabs;
 
+import com.google.common.collect.ImmutableSet;
+
 import javax.ws.rs.client.ClientBuilder;
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,6 +9,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Map;
+
+import static java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE;
+import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
+import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
 
 public class Sys {
     private final Log log;
@@ -57,5 +63,14 @@ public class Sys {
         install.waitFor();
         pump.join();
         log.log("done");
+    }
+
+    boolean isWindows() {
+        return System.getProperty("os.name").toLowerCase().contains("windows");
+    }
+
+    void makeExecutable(Path scriptPath) throws IOException {
+        if (!isWindows())
+            Files.setPosixFilePermissions(scriptPath, ImmutableSet.of(OWNER_EXECUTE, OWNER_READ, OWNER_WRITE));
     }
 }

@@ -30,13 +30,12 @@ public class LeinMojo extends AbstractMojo {
     
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        Log mavenLog = new Log() {
+        lein lein = new lein(new Sys(new Log() {
             @Override
             public void log(String message) {
                 getLog().info(message);
             }
-        };
-        lein lein = new lein(mavenLog, new Sys(mavenLog), leinVersion);
+        }), leinVersion);
 
         lein.build();
     }
