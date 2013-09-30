@@ -8,6 +8,9 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Wraps clojure's leiningen build tool in maven.
  * <p>
@@ -23,11 +26,14 @@ import org.apache.maven.plugins.annotations.Parameter;
 public class LeinMojo extends AbstractMojo {
 
     @Parameter(property = "lein.targets")
-    private String[] targets = new String[0];
+    private String[] targets = new String[]{"compile"};
 
     @Parameter(property = "lein.version", defaultValue = "2.3.2", required = true)
     private String leinVersion = "2.3.2";
 
+    @Parameter
+    private Map<String,String> environment = new HashMap<String, String>();
+    
     private Sys sys;
 
     @VisibleForTesting
@@ -49,7 +55,8 @@ public class LeinMojo extends AbstractMojo {
         lein lein = new lein(sys, leinVersion);
 
         lein.init();
-
+        lein.useEnvironment(environment);
+        
         for (String target : targets) {
             lein.run(target);
         }
@@ -62,5 +69,9 @@ public class LeinMojo extends AbstractMojo {
 
     public void setTargets(String[] targets) {
         this.targets = targets;
+    }
+
+    public void setEnvironment(Map<String,String> environment) {
+        this.environment = environment;
     }
 }

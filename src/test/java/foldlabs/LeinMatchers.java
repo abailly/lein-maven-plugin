@@ -35,7 +35,7 @@ public class LeinMatchers {
 
             @Override
             public void describeTo(Description description) {
-                description.appendText("a map containing pair (" + key + ", " + valueMatcher);
+                description.appendText("a map containing '" + key + "' with value s.t. " + valueMatcher);
             }
         };
     }

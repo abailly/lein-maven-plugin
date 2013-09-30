@@ -4,6 +4,7 @@ package foldlabs;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,7 +19,8 @@ public class lein {
     private final String version;
     private final Sys sys;
     private Path leinScript;
-    private Path leinjar;
+    private Path leinJar;
+    private Map<String, String> environment = Collections.emptyMap();
 
     public lein() {
         this(new Sys(new Log.SystemLog()));
@@ -40,6 +42,13 @@ public class lein {
     public void build() {
         try {
             init();
+
+            Map<String, String> environment = new HashMap<String, String>();
+            environment.put("LEIN_JAR", leinJar.toAbsolutePath().toString());
+            environment.put("PORT", port);
+
+            useEnvironment(environment);
+            
             run("deps");
             run("run");
         } catch (Exception e) {
@@ -47,7 +56,11 @@ public class lein {
         }
     }
 
-    Path getUberjar() throws IOException {
+    public void useEnvironment(Map<String, String> environment) {
+        this.environment = environment;
+    }
+
+    Path getUberJar() throws IOException {
         return sys.download(Paths.get("leiningen-" + version + "-standalone.jar"), "https://leiningen.s3.amazonaws.com/downloads/leiningen-" + version + "-standalone.jar");
     }
 
@@ -64,17 +77,13 @@ public class lein {
     public void init() {
         try {
             leinScript = getScript();
-            leinjar = getUberjar();
+            leinJar = getUberJar();
         } catch (IOException e) {
             throw new leinException(e);
         }
     }
 
     public void run(String target) {
-        Map<String, String> environment = new HashMap<String, String>();
-        environment.put("LEIN_JAR", leinjar.toAbsolutePath().toString());
-        environment.put("PORT", port);
-
         try {
             sys.run(leinScript, target, "lein " + target + "...", environment);
         } catch (Exception e) {
