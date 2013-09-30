@@ -32,10 +32,15 @@ public class LeinMojo extends AbstractMojo {
     private String leinVersion = "2.3.2";
 
     @Parameter
-    private Map<String,String> environment = new HashMap<String, String>();
+    private Map<String,String> environment = new HashMap<>();
     
     private Sys sys;
 
+    /**
+     * Makes maven happy.
+     */
+    public LeinMojo(){}
+    
     @VisibleForTesting
     LeinMojo(Sys sys) {
         this.sys = sys;
@@ -44,12 +49,13 @@ public class LeinMojo extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (sys == null) {
-            sys = new Sys(new Log() {
+            sys = new DefaultSys(new Log() {
                 @Override
                 public void log(String message) {
                     getLog().info(message);
                 }
             });
+            getLog().info("using default system utilities provider");
         }
         
         lein lein = new lein(sys, leinVersion);
@@ -73,5 +79,9 @@ public class LeinMojo extends AbstractMojo {
 
     public void setEnvironment(Map<String,String> environment) {
         this.environment = environment;
+    }
+    
+    public void setSys(Sys sys){
+        this.sys = sys;
     }
 }

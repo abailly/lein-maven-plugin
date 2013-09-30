@@ -23,7 +23,7 @@ public class lein {
     private Map<String, String> environment = Collections.emptyMap();
 
     public lein() {
-        this(new Sys(new Log.SystemLog()));
+        this(new DefaultSys(new Log.SystemLog()));
     }
 
     public lein(Sys sys) {
@@ -43,7 +43,7 @@ public class lein {
         try {
             init();
 
-            Map<String, String> environment = new HashMap<String, String>();
+            Map<String, String> environment = new HashMap<>();
             environment.put("LEIN_JAR", leinJar.toAbsolutePath().toString());
             environment.put("PORT", port);
 

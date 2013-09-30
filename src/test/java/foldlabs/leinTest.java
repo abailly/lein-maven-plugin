@@ -12,7 +12,6 @@ import java.nio.file.Path;
 
 import static foldlabs.LeinMatchers.*;
 import static org.hamcrest.CoreMatchers.is;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.eq;

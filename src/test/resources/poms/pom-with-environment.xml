@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>foldlabs.lein-plugin.test</groupId>
+  <artifactId>lein-plugin</artifactId>
+  <version>1.0-SNAPSHOT</version>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>foldlabs</groupId>
+        <artifactId>lein-maven-plugin</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>lein</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <environment>
+            <foo>bar</foo>
+          </environment>
+          <leinVersion>1.2.3</leinVersion>
+          <targets>
+            <target>go</target>
+            <target>farther</target>
+          </targets>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
