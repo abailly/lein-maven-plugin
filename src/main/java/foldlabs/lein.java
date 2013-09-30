@@ -39,18 +39,9 @@ public class lein {
 
     public void build() {
         try {
-
-            Path leinScript = getScript();
-
-            Path leinjar = getUberjar();
-
-            Map<String, String> environment = new HashMap<String, String>();
-            environment.put("LEIN_JAR", leinjar.toAbsolutePath().toString());
-            environment.put("PORT", port);
-
-            sys.run(leinScript, "deps", "updating dependencies ...", environment);
-
-            sys.run(leinScript, "run", "running app on port " + port + "...", environment);
+            init();
+            run("deps");
+            run("run");
         } catch (Exception e) {
             throw new leinException(e);
         }
