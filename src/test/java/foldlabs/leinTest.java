@@ -9,6 +9,8 @@ import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
 import static foldlabs.LeinMatchers.*;
 import static org.hamcrest.CoreMatchers.is;
@@ -81,9 +83,23 @@ public class leinTest {
     }
 
     @Test
-    public void runScriptWithRunTargetAndEnvironmentWithPortSetToDefault() throws Exception {
-        l.build();
+    public void initPutsLEIN_JARInEnvironment() throws Exception {
+        l.init();
+        l.run("deps");
+        
+        verify(sys).run(argThat(aPathMatching(".*lein")), eq("deps"), anyString(),
+                argThat(aMapWith("LEIN_JAR", aStringMatching(LEIN_UBER_JAR_WITH_DEFAULT_VERSION))));
+    }
 
+    @Test
+    public void useEnvironmentExtendsEnvironment() throws Exception {
+        Map<String, String> env = new HashMap<>();
+        env.put("PORT","3000");
+        
+        l.init();
+        l.useEnvironment(env);
+        l.run("run");
+        
         verify(sys).run(argThat(aPathMatching(".*lein")), eq("run"), anyString(), argThat(aMapWith("PORT", is("3000"))));
     }
 

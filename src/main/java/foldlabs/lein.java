@@ -4,7 +4,6 @@ package foldlabs;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,13 +13,12 @@ import java.util.Map;
 public class lein {
 
     public static final String DEFAULT_VERSION = "2.3.2";
-    static String port = System.getProperty("coloneltrain.port", "3000");
 
     private final String version;
     private final Sys sys;
     private Path leinScript;
     private Path leinJar;
-    private Map<String, String> environment = Collections.emptyMap();
+    private Map<String, String> environment = new HashMap<>();
 
     public lein() {
         this(new DefaultSys(new Log.SystemLog()));
@@ -43,12 +41,6 @@ public class lein {
         try {
             init();
 
-            Map<String, String> environment = new HashMap<>();
-            environment.put("LEIN_JAR", leinJar.toAbsolutePath().toString());
-            environment.put("PORT", port);
-
-            useEnvironment(environment);
-            
             run("deps");
             run("run");
         } catch (Exception e) {
@@ -57,7 +49,7 @@ public class lein {
     }
 
     public void useEnvironment(Map<String, String> environment) {
-        this.environment = environment;
+        this.environment.putAll(environment);
     }
 
     Path getUberJar() throws IOException {
@@ -78,6 +70,11 @@ public class lein {
         try {
             leinScript = getScript();
             leinJar = getUberJar();
+
+            Map<String, String> environment = new HashMap<>();
+            environment.put("LEIN_JAR", leinJar.toAbsolutePath().toString());
+            useEnvironment(environment);
+            
         } catch (IOException e) {
             throw new leinException(e);
         }
