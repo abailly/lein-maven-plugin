@@ -65,7 +65,7 @@ public class leinTest {
     }
 
     @Test
-    public void downloadsPlainLeinScriptOnUnices() throws Exception {
+    public void downloadsPlainLeinScriptOnUnix() throws Exception {
         when(sys.isWindows()).thenReturn(false);
 
         l.build();
