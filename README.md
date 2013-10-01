@@ -54,7 +54,22 @@ A maven plugin that wraps [leiningen](https://github.com/technomancy/leiningen) 
      INFO  org.eclipse.jetty.server.Server - jetty-7.6.1.v20120215
      INFO  org.eclipse.jetty.server.AbstractConnector - Started SelectChannelConnector@0.0.0.0:3000
      ```
-     
+
+# Public repository access
+
+If you don't want or cannot build the plugin yourself, a binary version is available from Dropbox. 
+Add the following repository definition to your `pom.xml` or `settings.xml` file:
+
+```
+<pluginRepository>
+  <id>foldlabs</id>
+  <url>https://dl.dropboxusercontent.com/u/2060057/maven/</url>
+  <snapshots>
+    <enabled>true</enabled>
+  </snapshots>
+</pluginRepository>
+```
+
 # Configuration details
 
 This simple mojo wraps leiningen execution with maven. It is extremely dumb,

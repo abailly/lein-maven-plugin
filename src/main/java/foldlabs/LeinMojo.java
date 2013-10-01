@@ -44,7 +44,7 @@ public class LeinMojo extends AbstractMojo {
      *     killed while sub-processes are still alive, this will create orphan processes that must be killed manually.
      * </p>
      */
-    @Parameter(property = "lein.targets", defaultValue="compile",required = true)
+    @Parameter(property = "lein.targets")
     private String[] targets = new String[]{"compile"};
 
     /**
