@@ -77,4 +77,14 @@ public class DefaultSys implements Sys {
         if (!isWindows())
             Files.setPosixFilePermissions(scriptPath, ImmutableSet.of(OWNER_EXECUTE, OWNER_READ, OWNER_WRITE));
     }
+
+    @Override
+    public String currentDirectory() {
+        return System.getProperty("user.dir");
+    }
+
+    @Override
+    public boolean makeDir(Path installDir) {
+        return installDir.toFile().mkdirs();
+    }
 }

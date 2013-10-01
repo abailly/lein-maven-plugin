@@ -12,4 +12,8 @@ public interface Sys {
     boolean isWindows();
 
     void makeExecutable(Path scriptPath) throws IOException;
+
+    String currentDirectory();
+
+    boolean makeDir(Path installDir);
 }

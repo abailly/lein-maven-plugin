@@ -53,11 +53,13 @@ public class lein {
     }
 
     Path getUberJar() throws IOException {
-        return sys.download(Paths.get("leiningen-" + version + "-standalone.jar"), "https://leiningen.s3.amazonaws.com/downloads/leiningen-" + version + "-standalone.jar");
+        Path installDir = Paths.get(".", "self-installs");
+        sys.makeDir(installDir);
+        return sys.download(installDir.resolve(Paths.get("leiningen-" + version + "-standalone.jar")), "https://leiningen.s3.amazonaws.com/downloads/leiningen-" + version + "-standalone.jar");
     }
 
     Path getScript() throws IOException {
-        Path scriptPath = Paths.get("lein" + (sys.isWindows() ? ".bat" : ""));
+        Path scriptPath = Paths.get(".","lein" + (sys.isWindows() ? ".bat" : ""));
 
         scriptPath = sys.download(scriptPath, "https://raw.github.com/technomancy/leiningen/stable/bin/lein" + (sys.isWindows() ? ".bat" : ""));
 
@@ -73,6 +75,7 @@ public class lein {
 
             Map<String, String> environment = new HashMap<>();
             environment.put("LEIN_JAR", leinJar.toAbsolutePath().toString());
+            environment.put("LEIN_HOME", sys.currentDirectory());
             useEnvironment(environment);
             
         } catch (IOException e) {
