@@ -3,9 +3,10 @@ package foldlabs;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+
+import static java.nio.file.Paths.get;
 
 /**
  * Simple wrapper over leiningen script files.
@@ -14,8 +15,10 @@ public class lein {
 
     public static final String DEFAULT_VERSION = "2.3.2";
 
+    private final Path buildDirectory;
     private final String version;
     private final Sys sys;
+    
     private Path leinScript;
     private Path leinJar;
     private Map<String, String> environment = new HashMap<>();
@@ -29,8 +32,15 @@ public class lein {
     }
 
     public lein(Sys sys, String leinVersion) {
+        this(sys.currentDirectory(),sys,leinVersion);
+    }
+
+    public lein(Path buildDirectory, Sys sys, String leinVersion) {
+        this.buildDirectory = buildDirectory;
         this.version = leinVersion;
         this.sys = sys;
+        
+        sys.cd(buildDirectory);
     }
 
     public static void main(String[] args) throws IOException {
@@ -53,13 +63,13 @@ public class lein {
     }
 
     Path getUberJar() throws IOException {
-        Path installDir = Paths.get(".", "self-installs");
+        Path installDir = buildDirectory.resolve(get("self-installs"));
         sys.makeDir(installDir);
-        return sys.download(installDir.resolve(Paths.get("leiningen-" + version + "-standalone.jar")), "https://leiningen.s3.amazonaws.com/downloads/leiningen-" + version + "-standalone.jar");
+        return sys.download(installDir.resolve(get("leiningen-" + version + "-standalone.jar")), "https://leiningen.s3.amazonaws.com/downloads/leiningen-" + version + "-standalone.jar");
     }
 
     Path getScript() throws IOException {
-        Path scriptPath = Paths.get(".","lein" + (sys.isWindows() ? ".bat" : ""));
+        Path scriptPath = buildDirectory.resolve(get("lein" + (sys.isWindows() ? ".bat" : "")));
 
         scriptPath = sys.download(scriptPath, "https://raw.github.com/technomancy/leiningen/stable/bin/lein" + (sys.isWindows() ? ".bat" : ""));
 
@@ -75,7 +85,7 @@ public class lein {
 
             Map<String, String> environment = new HashMap<>();
             environment.put("LEIN_JAR", leinJar.toAbsolutePath().toString());
-            environment.put("LEIN_HOME", sys.currentDirectory());
+            environment.put("LEIN_HOME", buildDirectory.toString());
             useEnvironment(environment);
             
         } catch (IOException e) {
@@ -85,7 +95,7 @@ public class lein {
 
     public void run(String target) {
         try {
-            sys.run(leinScript, target, "lein " + target + "...", environment);
+            sys.run(leinScript, target, environment);
         } catch (Exception e) {
             throw new leinException(e);
         }

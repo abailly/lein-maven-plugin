@@ -1,8 +1,6 @@
 package foldlabs;
 
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -18,13 +16,7 @@ public class LeinMojoPluginTest extends AbstractMojoTestCase {
 
     public void setUp() throws Exception {
         super.setUp();
-        sys = mock(Sys.class);
-        when(sys.download(any(Path.class), any(String.class))).thenAnswer(new Answer<Path>() {
-            @Override
-            public Path answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return (Path) invocationOnMock.getArguments()[0];
-            }
-        });
+        sys = MockSys.defaultSys();
     }
 
     public void testConfigureEnvironmentFromPom() throws Exception {
@@ -37,8 +29,8 @@ public class LeinMojoPluginTest extends AbstractMojoTestCase {
         mojo.execute();
 
         verify(sys).download(any(Path.class),argThat(aStringMatching(".*1.2.3.*")));
-        verify(sys).run(any(Path.class), eq("go"),anyString(),argThat(aMapWith("foo",is("bar"))));
-        verify(sys).run(any(Path.class), eq("farther"),anyString(),argThat(aMapWith("foo",is("bar"))));
+        verify(sys).run(any(Path.class), eq("go"), argThat(aMapWith("foo",is("bar"))));
+        verify(sys).run(any(Path.class), eq("farther"), argThat(aMapWith("foo",is("bar"))));
     }
 
     private File pathOf(String relativePathToFile) {

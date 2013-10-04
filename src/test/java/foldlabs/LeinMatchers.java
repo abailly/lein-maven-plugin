@@ -53,4 +53,18 @@ public class LeinMatchers {
             }
         };
     }
+
+    static Matcher<Path> aPathContaining(final String content) {
+        return new TypeSafeMatcher<Path>() {
+            @Override
+            protected boolean matchesSafely(Path path) {
+                return path.toString().contains(content);
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("a path containing " + content);
+            }
+        };
+    }
 }

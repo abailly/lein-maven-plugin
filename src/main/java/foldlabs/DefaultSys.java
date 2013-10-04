@@ -7,15 +7,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Map;
 
-import static java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE;
-import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
-import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
+import static java.nio.file.attribute.PosixFilePermission.*;
 
 public class DefaultSys implements Sys {
     private final Log log;
+    private Path pwd;
 
     public DefaultSys(Log log) {
         this.log = log;
@@ -53,11 +53,16 @@ public class DefaultSys implements Sys {
     }
 
     @Override
-    public void run(Path lein1, String target, String message, Map<String, String> env) throws IOException, InterruptedException {
-        log.log(message);
-        ProcessBuilder processBuilder = new ProcessBuilder(lein1.toAbsolutePath().toString(), target).redirectErrorStream(true);
+    public void run(Path lein, String target, Map<String, String> env) throws IOException, InterruptedException {
+        log.log("lein " + target + "...");
+
+        ProcessBuilder processBuilder = new ProcessBuilder(lein.toAbsolutePath().toString(), target)
+                .redirectErrorStream(true)
+                .directory(pwd.toFile());
+
         Map<String, String> environment = processBuilder.environment();
         environment.putAll(env);
+
         Process install = processBuilder.start();
 
         Thread pump = pump(install.getInputStream());
@@ -79,12 +84,17 @@ public class DefaultSys implements Sys {
     }
 
     @Override
-    public String currentDirectory() {
-        return System.getProperty("user.dir");
+    public Path currentDirectory() {
+        return Paths.get(System.getProperty("user.dir"));
     }
 
     @Override
     public boolean makeDir(Path installDir) {
         return installDir.toFile().mkdirs();
+    }
+
+    @Override
+    public void cd(Path directory) {
+        this.pwd = directory;
     }
 }

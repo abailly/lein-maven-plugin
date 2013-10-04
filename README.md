@@ -70,6 +70,8 @@ Add the following repository definition to your `pom.xml` or `settings.xml` file
 </pluginRepository>
 ```
 
+> Thanks to http://code.google.com/p/peter-lavalle/wiki/MavenOnDropBox for the idea.
+
 # Configuration details
 
 This simple mojo wraps leiningen execution with maven. It is extremely dumb,

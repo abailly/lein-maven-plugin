@@ -5,10 +5,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -18,7 +17,6 @@ import static foldlabs.LeinMatchers.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.*;
 
 public class leinTest {
@@ -30,16 +28,13 @@ public class leinTest {
 
     private Sys sys;
     private lein l;
+    private Path buildDirectory;
 
     @Before
-    public void setup() throws IOException {
-        sys = mock(Sys.class);
-        when(sys.download(any(Path.class), any(String.class))).thenAnswer(new Answer<Path>() {
-            @Override
-            public Path answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return (Path) invocationOnMock.getArguments()[0];
-            }
-        });
+    public void setup() throws IOException, URISyntaxException {
+        sys = MockSys.defaultSys();
+        buildDirectory = Paths.get(getClass().getResource("/lein").toURI()).getParent();
+        
         l = new lein(sys);
     }
 
@@ -54,7 +49,7 @@ public class leinTest {
     public void createInstallDirectoryWhenDownloadingUberJar() throws Exception {
         l.build();
 
-        verify(sys).makeDir(Paths.get(".","self-installs"));
+        verify(sys).makeDir(Paths.get(".", "self-installs"));
     }
 
     @Test
@@ -87,7 +82,7 @@ public class leinTest {
     public void runScriptWithDepsTargetAndEnvironmentWithLEIN_JARSet() throws Exception {
         l.build();
 
-        verify(sys).run(argThat(aPathMatching(".*lein")), eq("deps"), anyString(),
+        verify(sys).run(argThat(aPathMatching(".*lein")), eq("deps"),
                 argThat(aMapWith("LEIN_JAR", aStringMatching(LEIN_UBER_JAR_WITH_DEFAULT_VERSION_IN_SELF_INSTALLS))));
     }
 
@@ -96,18 +91,19 @@ public class leinTest {
         l.init();
         l.run("deps");
 
-        verify(sys).run(argThat(aPathMatching(".*lein")), eq("deps"), anyString(),
+        verify(sys).run(argThat(aPathMatching(".*lein")), eq("deps"),
                 argThat(aMapWith("LEIN_JAR", aStringMatching(LEIN_UBER_JAR_WITH_DEFAULT_VERSION_IN_SELF_INSTALLS))));
     }
 
     @Test
-    public void initPutsLEIN_HOMEInEnvironment() throws Exception {
-        when(sys.currentDirectory()).thenReturn("foo");
+    public void initPutsCurrentDirectoryAsLEIN_HOMEInEnvironmentGivenBuildDirectoryIsNotSpecified() throws Exception {
+        when(sys.currentDirectory()).thenReturn(Paths.get("foo"));
+        l = new lein(sys);
         
         l.init();
         l.run("deps");
 
-        verify(sys).run(argThat(aPathMatching(".*lein")), eq("deps"), anyString(),
+        verify(sys).run(argThat(aPathMatching(".*lein")), eq("deps"),
                 argThat(aMapWith("LEIN_HOME", CoreMatchers.is("foo"))));
     }
 
@@ -120,7 +116,34 @@ public class leinTest {
         l.useEnvironment(env);
         l.run("run");
         
-        verify(sys).run(argThat(aPathMatching(".*lein")), eq("run"), anyString(), argThat(aMapWith("PORT", is("3000"))));
+        verify(sys).run(argThat(aPathMatching(".*lein")), eq("run"), argThat(aMapWith("PORT", is("3000"))));
+    }
+
+    @Test
+    public void downloadsScriptAndUberJarToConfigureDirectory() throws Exception {
+        l = new lein(buildDirectory,sys,"2.0");
+
+        l.build();
+
+        verify(sys,times(2)).download(argThat(aPathContaining(buildDirectory.toString())), anyString());
+    }
+
+    @Test
+    public void setsWorkDirectoryInSysWhenSpecified() throws Exception {
+        l = new lein(buildDirectory,sys,"2.0");
+
+        verify(sys).cd(buildDirectory);
+    }
+
+    @Test
+    public void initPutsConfiguredDirectoryAsLEIN_HOMEInEnvironmentGivenItIsDefined() throws Exception {
+        l = new lein(buildDirectory,sys,"2.0");
+
+        l.init();
+        l.run("deps");
+
+        verify(sys).run(argThat(aPathMatching(".*lein")), eq("deps"),
+                argThat(aMapWith("LEIN_HOME", CoreMatchers.is(buildDirectory.toString()))));
     }
 
     @Test
