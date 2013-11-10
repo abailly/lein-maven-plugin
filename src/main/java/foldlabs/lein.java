@@ -13,7 +13,7 @@ import static java.nio.file.Paths.get;
  */
 public class lein {
 
-    public static final String DEFAULT_VERSION = "2.3.2";
+    public static final String DEFAULT_VERSION = "2.3.3";
 
     private final Path buildDirectory;
     private final String version;
