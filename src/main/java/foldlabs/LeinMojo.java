@@ -50,8 +50,8 @@ public class LeinMojo extends AbstractMojo {
     /**
      * Defines which leiningen's version to use.
      */
-    @Parameter(property = "lein.version", defaultValue = "2.3.2", required = true)
-    private String leinVersion = "2.3.2";
+    @Parameter(property = "lein.version", defaultValue = "2.3.3", required = true)
+    private String leinVersion = "2.3.3";
 
     /**
      * Sets environment variables to pass to underlying processes.
